@@ -51,7 +51,14 @@ if ( !class_exists("LyNavMap") ) {
 
         // when desinstalling the plugin
         function map_uninstall() {
+            global $wpdb;
 
+            $target_table = $wpdb->prefix . 'ly_nav_map'; // identifies table to drop
+
+            if ( $wpdb->get_var("SHOW TABLES LIKE '$target_table'") == $target_table ) {
+                $sql = "DROP TABLE $target_table";
+                $wpdb->query( $sql );
+            }
         }
 
         // actions at initialization: add to admin menu
@@ -92,8 +99,13 @@ if ( class_exists("LyNavMap") ) {
     $inst_map = new LyNavMap();
 }
 
+// hook on plugin activation
 if ( isset( $inst_map ) ) {
+    // hook on plugin activation
     register_activation_hook( __FILE__, array( $inst_map, "map_install" ) );
+
+    // hook on plugin deactivation
+    register_deactivation_hook( __FILE__, array( $inst_map, "map_uninstall" ) );
 }
 
 ?>
